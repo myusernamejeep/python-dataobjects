@@ -3,7 +3,7 @@ Created on Mar 8, 2009
 
 @author: Paulo Cheque (paulocheque@agilbits.com.br)
 
-TODO lista de entidades? DataObject: True?
+TODO entity list?
 '''
 
 import unittest
