@@ -6,9 +6,6 @@ Created on Mar 8, 2009
 
 from domain import validator
 
-class A(object): pass
-class B(A): pass
-
 class DataObject(object):
   '''
   An data object with useful methods for validation
@@ -91,10 +88,6 @@ class DataObject(object):
     self.validate()
     return self.__currentErrors
   
-  def xxx(self):
-    print('self = ' + str(self))
-    print('self class = ' + str(self.__class__))
-
   def valid(self):
     return len(self.errors()) == 0
 
@@ -112,7 +105,7 @@ class DataObject(object):
 
 class ValueObject(DataObject): 
   '''
-  Just use to document the data object
+  Value Objects don't have an identifier, they are equal by your properties.
   '''
   def __eq__(self, that):
     if isinstance(that, self.__class__):
@@ -124,9 +117,10 @@ class ValueObject(DataObject):
 
 class Entity(DataObject): 
   '''
-  Just use to document the data object
-  Entity has an identifier
+  Entity has an identifier, 
   '''
+#  In the future, this class could have an id property and __eq__ __ne__ methods based
+#  on id property
 #  def __init__(self, id=None):
 #    self.id = id
   pass

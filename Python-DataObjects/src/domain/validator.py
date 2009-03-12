@@ -25,12 +25,12 @@ from string import Template
 
 class ConstraintException(Exception):
   '''
-  classdocs
+  Exception that raises when validation fail
   '''
   
   def __init__(self, value):
     '''
-    constructor
+    value: message of this exception
     '''
     self.value = value
     
@@ -39,23 +39,28 @@ class ConstraintException(Exception):
 
 
 class Constraint(object):
+  '''
+  Constraint is an abstract class
+  To implement a constraint, just extend this class and implement 
+  the methods valid (return a bool) and message (return a string)
+  '''
   
   def __init__(self, attributeName, requiredValue, value):
     self.attributeName = attributeName
     self.requiredValue = requiredValue
     self.value = value
   
+  @classmethod
   def load(clazz):
     '''
     Just a method to facilitate the developers work. 
     Cycle dependency but it is ok for a good reason.
     '''
     ConstraintFactory.addConstraint(clazz)
-  load = classmethod(load)
-  
+
+  @classmethod
   def getName(clazz):
     return clazz.__name__.replace('Constraint', '')
-  getName = classmethod(getName)
   
   def valid(self): pass
   
@@ -73,6 +78,7 @@ class ConstraintFactory(object):
   
   def getConstraint(name, attributeName, requiredValue, value):
     if name in ConstraintFactory.constraintsRules:
+#      FIXME need to get the module name
 #      return eval('from domain import validatorTest')
       return eval(name + 'Constraint(attributeName, requiredValue, value)')
     else:
