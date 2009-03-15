@@ -6,8 +6,7 @@ Created on Mar 8, 2009
 
 import unittest
 import datetime
-from validator import *
-
+from domain.validator import *
     
 class ConstraintFactoryTest(unittest.TestCase):
     
@@ -22,6 +21,13 @@ class ConstraintFactoryTest(unittest.TestCase):
       ConstraintFactory.addConstraint(SomeConstraint)
     except ConstraintException: pass
     else: self.fail()
+    
+  def testGetConstraint(self):
+    class SomeConstraint(Constraint):
+      def __init__(self):
+        self.a = None
+    ConstraintFactory.addConstraint(SomeConstraint)
+    self.assertEquals(SomeConstraint, ConstraintFactory.getConstraint('Some', 'a', None, None).__class__)
     
   def testGetConstraintRaiseAConstraintExceptionIfNotRegistered(self):
     try:
@@ -391,17 +397,11 @@ class GeneralValidatorTest(unittest.TestCase):
     
     
   def testDeveloperCreateYourConstraint(self):
-    '''
-    FIXME: carregar contraint de outro modulo/pacote. nao encontra a classe
-    '''
-    self.fail('not yet implemented')
     try:
       constraint = ConstraintFactory.getConstraint('My', '', '', '')
     except ConstraintException: pass
     else: self.fail()
     MyConstraint.load()
-#    ConstraintFactory.constraintsRules.append('validatorTest.My')
-#    constraint = ConstraintFactory.getConstraint('validatorTest.My', '', '', '')
     constraint = ConstraintFactory.getConstraint('My', '', '', '')
     self.assertEquals(MyConstraint, constraint.__class__)
     
