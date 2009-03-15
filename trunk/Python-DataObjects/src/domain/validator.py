@@ -17,10 +17,11 @@ MyConstraint.load()
 
 Now, it is possible to do this:
 
-MyEntity.addConstraints('somevariable', My = True)
+MyEntity.addConstraints('somevariable', My = SomeRequiredValue)
 '''
 
 import re
+import inspect
 from string import Template
 
 class ConstraintException(Exception):
@@ -45,11 +46,11 @@ class Constraint(object):
   the methods valid (return a bool) and message (return a string)
   '''
   
-  def __init__(self, attributeName, requiredValue, value):
+  def __init__(self, attributeName=None, requiredValue=None, value=None):
     self.attributeName = attributeName
     self.requiredValue = requiredValue
     self.value = value
-  
+    
   @classmethod
   def load(clazz):
     '''
@@ -68,22 +69,27 @@ class Constraint(object):
   
 class ConstraintFactory(object):
   
-  constraintsRules = []
+  constraintsRules = {}
   
+  @staticmethod
   def addConstraint(constraintClass):
     if not issubclass(constraintClass, Constraint):
       raise ConstraintException('Invalid Constraint, please, extend Constraint class') 
-    ConstraintFactory.constraintsRules.append(constraintClass.getName())
-  addConstraint = staticmethod(addConstraint)
-  
+    ConstraintFactory.constraintsRules[constraintClass.getName()] = constraintClass
+
+  @staticmethod
   def getConstraint(name, attributeName, requiredValue, value):
     if name in ConstraintFactory.constraintsRules:
-#      FIXME need to get the module name
-#      return eval('from domain import validatorTest')
-      return eval(name + 'Constraint(attributeName, requiredValue, value)')
+      constraint = ConstraintFactory.constraintsRules[name]()
+      constraint.attributeName = attributeName
+      constraint.requiredValue = requiredValue
+      constraint.value = value
+      return constraint
     else:
       raise ConstraintException('Constraint ' + name + 'Constraint not registered')
-  getConstraint = staticmethod(getConstraint)
+  
+
+# Constraints
   
 class MinConstraint(Constraint):
   

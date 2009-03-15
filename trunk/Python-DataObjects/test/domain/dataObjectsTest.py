@@ -8,25 +8,25 @@ TODO entity list?
 
 import unittest
 import datetime
-from domain import validator
-from domain import dataObjects
+from domain.validator import *
+from domain.dataObjects import *
 
 class DataObjectTest(unittest.TestCase):
   
   def testEntityWithoutConstraintsIsValidAndHasNoErrors(self):
-    class MyEntity(dataObjects.Entity): pass
+    class MyEntity(Entity): pass
     self.assertEquals(True, MyEntity().valid())
     self.assertEquals(False, MyEntity().hasErrors())
     self.assertEquals([], MyEntity().errors())
     
   def testValueObjectWithoutConstraintsIsValidAndHasNoErrors(self):
-    class MyValueObject(dataObjects.ValueObject): pass
+    class MyValueObject(ValueObject): pass
     self.assertEquals(True, MyValueObject().valid())
     self.assertEquals(False, MyValueObject().hasErrors())
     self.assertEquals([], MyValueObject().errors())
     
   def testEntityWithNonDefaultConstructorWithoutConstraintsIsValidAndHasNoErrors(self):
-    class MyEntity(dataObjects.Entity):
+    class MyEntity(Entity):
       def __init__(self):
         self.somevar = 1
     self.assertEquals(True, MyEntity().valid())
@@ -37,29 +37,29 @@ class DataObjectTest(unittest.TestCase):
 class DataObjectAddConstraintTest(unittest.TestCase):
 
   def testEachDataObjectHasItsContraints(self):
-    class MyEntity(dataObjects.Entity): 
+    class MyEntity(Entity): 
       def __init__(self): self.somevalidvariable = 1
-    class MyAnotherEntity(dataObjects.Entity):
+    class MyAnotherEntity(Entity):
       def __init__(self): self.somevalidvariable = 1
-    self.assertEquals(id(dataObjects.Entity.constraints), id(MyEntity.constraints))
-    self.assertEquals(id(dataObjects.Entity.constraints), id(MyAnotherEntity.constraints))
+    self.assertEquals(id(Entity.constraints), id(MyEntity.constraints))
+    self.assertEquals(id(Entity.constraints), id(MyAnotherEntity.constraints))
     
     MyEntity.addConstraints('somevalidvariable')
-    self.assertNotEquals(id(dataObjects.Entity.constraints), id(MyEntity.constraints))
-    self.assertEquals(id(dataObjects.Entity.constraints), id(MyAnotherEntity.constraints))
+    self.assertNotEquals(id(Entity.constraints), id(MyEntity.constraints))
+    self.assertEquals(id(Entity.constraints), id(MyAnotherEntity.constraints))
     
     MyAnotherEntity.addConstraints('somevalidvariable')
-    self.assertNotEquals(id(dataObjects.Entity.constraints), id(MyEntity.constraints))
-    self.assertNotEquals(id(dataObjects.Entity.constraints), id(MyAnotherEntity.constraints))
+    self.assertNotEquals(id(Entity.constraints), id(MyEntity.constraints))
+    self.assertNotEquals(id(Entity.constraints), id(MyAnotherEntity.constraints))
     self.assertNotEquals(id(MyEntity.constraints), id(MyAnotherEntity.constraints))
     
   def testEachDataObjectHasItsContraintsEvenForInheritance(self):
-    class MyEntity(dataObjects.Entity): 
+    class MyEntity(Entity): 
       def __init__(self): self.somevalidvariable = 1
     class MyAnotherEntity(MyEntity):
       def __init__(self): self.someanothervalidvariable = 1
-    self.assertEquals(id(dataObjects.Entity.constraints), id(MyEntity.constraints))
-    self.assertEquals(id(dataObjects.Entity.constraints), id(MyAnotherEntity.constraints))
+    self.assertEquals(id(Entity.constraints), id(MyEntity.constraints))
+    self.assertEquals(id(Entity.constraints), id(MyAnotherEntity.constraints))
     MyEntity.addConstraints('somevalidvariable')
     MyAnotherEntity.addConstraints('someanothervalidvariable')
     self.assertEquals(1, len(MyEntity.constraints))
@@ -68,18 +68,18 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     
   
   def testDataObjectAddConstraintForInstanceVariable(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self): self.somevariable = 10
     MyDO.addConstraints('somevariable')
     self.assertNotEquals(None, MyDO.constraints['somevariable'])
     
   def testDataObjectAddConstraintForClassVariable(self):
-    class MyDO(dataObjects.DataObject): somevariable = 10
+    class MyDO(DataObject): somevariable = 10
     MyDO.addConstraints('somevariable')
     self.assertNotEquals(None, MyDO.constraints['somevariable'])
     
   def testDataObjectAddConstraintForAnEntityWithoutDefaultConstructor(self):
-    class MyDO(dataObjects.DataObject): 
+    class MyDO(DataObject): 
       def __init__(self, somevariable): self.somevariable = somevariable
     MyDO.addConstraints('somevariable')
     self.assertNotEquals(None, MyDO.constraints['somevariable'])
@@ -87,7 +87,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     
     
   def testDataObjectWithOneConstraintAndValidDataMustBeValid(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self): self.someint = 10
     MyDO.addConstraints('someint', Min = 5)
     do = MyDO()
@@ -96,7 +96,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals([], do.errors())
     
   def testDataObjectWithOneConstraintAndValidDataMustBeValid(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self): self.someint = 4
     MyDO.addConstraints('someint', Min = 5)
     do = MyDO()
@@ -105,7 +105,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals(['someint (= 4) must be greater or equal than 5'], do.errors())
     
   def testDataObjectWithOneListOfConstraintsAndValidDataMustBeValid(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self): self.someint = 10
     MyDO.addConstraints('someint', Min = 5, Max = 15)
     do = MyDO()
@@ -114,7 +114,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals([], do.errors())
     
   def testDataObjectWithOneListOfConstraintsWithOneValidDateAndOneInvalidDataMustBeInvalid(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self): self.somestring = 'paulocheque@gmail.com'
     MyDO.addConstraints('somestring', Email = True, Site = True)
     do = MyDO()
@@ -123,7 +123,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals(['somestring (= paulocheque@gmail.com) must be a valid site address'], do.errors())
     
   def testDataObjectWithOneListOfConstraintsWithTwoInvalidDataMustBeInvalid(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self): self.somestring = 'xxx'
     MyDO.addConstraints('somestring', Email = True, Site = True)
     do = MyDO()
@@ -133,7 +133,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals('somestring (= xxx) must be a valid site address', do.errors()[1])
     
   def testDataObjectWithTwoListOfConstraintsAndValidDataMustBeValid(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self):
         self.someint = 3
         self.somestring = 'abc'
@@ -145,7 +145,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals([], do.errors())
     
   def testDataObjectWithTwoListOfConstraintsAndOneInvalidDataMustBeInvalid(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self):
         self.somefloat = 1.23
         self.somelist = [1, 2, 3]
@@ -157,7 +157,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals(['somelist (= [1, 2, 3]) must have length lower or equal than 2'], do.errors())
     
   def testDataObjectWithTwoListOfConstraintsAndInvalidDataMustBeInvalid(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self):
         self.somefloat = 1.23
         self.somedict = {1:1, 2:2, 3:3}
@@ -170,16 +170,16 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals('somedict (= {1: 1, 2: 2, 3: 3}) must have length lower or equal than 2', do.errors()[0])
     
   def testConstraintOfInexistentVariableMustRaiseAConstraintException(self):
-    class MyDO(dataObjects.DataObject): pass
+    class MyDO(DataObject): pass
     MyDO.addConstraints('someconstraint', Min = 1)
     try:
       MyDO().validate()
-    except validator.ConstraintException: pass
+    except ConstraintException: pass
     else: self.fail()
 
   
   def testFullValidExample(self):
-    class FullEntity(dataObjects.Entity):
+    class FullEntity(Entity):
       
       def __init__(self):
         self.someint = 1
@@ -206,7 +206,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals([], fullEntity.errors())
     
   def testFullInvalidExample(self):
-    class FullEntity(dataObjects.Entity):
+    class FullEntity(Entity):
       
       def __init__(self):
         self.someint = 1
@@ -233,11 +233,11 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals(27, len(fullEntity.errors())) # 27 constraints
 
   def testValidatorMustRunRecursively(self):
-    class InnerEntity(dataObjects.Entity):
+    class InnerEntity(Entity):
       def __init__(self, name):
         self.name = name
     InnerEntity.addConstraints('name', Max = 2)
-    class OuterEntity(dataObjects.Entity): 
+    class OuterEntity(Entity): 
       def __init__(self, inner):
         self.inner = inner
     OuterEntity.addConstraints('inner')
@@ -254,11 +254,11 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals(['name (= xxx) must have length lower or equal than 2'], outer.errors())
     
   def testValidatorMustRunRecursivelyAndMustRunInnerConstraints(self):
-    class InnerEntity(dataObjects.Entity):
+    class InnerEntity(Entity):
       def __init__(self, name):
         self.name = name
     InnerEntity.addConstraints('name', Max = 2)
-    class OuterEntity(dataObjects.Entity): 
+    class OuterEntity(Entity): 
       def __init__(self, inner):
         self.inner = inner
     OuterEntity.addConstraints('inner', Nullable = False)
@@ -275,15 +275,15 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals(['inner (= None) must be different of None'], outer.errors())
     
   def testTwoLevelsOfRecursive(self):
-    class InnestEntity(dataObjects.Entity):
+    class InnestEntity(Entity):
       def __init__(self, name):
         self.name = name
     InnestEntity.addConstraints('name', Max = 2)
-    class InnerEntity(dataObjects.Entity):
+    class InnerEntity(Entity):
       def __init__(self, innest):
         self.innest = innest
     InnerEntity.addConstraints('innest')
-    class OuterEntity(dataObjects.Entity): 
+    class OuterEntity(Entity): 
       def __init__(self, inner):
         self.inner = inner
     OuterEntity.addConstraints('inner')
@@ -307,10 +307,10 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     
     
   def testCycleDependencyMustNotGenerateAnInfiniteLoop(self):
-    class A(dataObjects.Entity):
+    class A(Entity):
       def __init__(self):
         self.b = None
-    class B(dataObjects.Entity): 
+    class B(Entity): 
       def __init__(self):
         self.a = None
     a = A()
@@ -327,7 +327,7 @@ class DataObjectAddConstraintTest(unittest.TestCase):
     self.assertEquals([], b.errors())
    
   def testInheritanceDerivedMustCallValidationOfBaseClass(self):
-    class BaseClass(dataObjects.Entity):
+    class BaseClass(Entity):
       def __init__(self, base):
         self.base = base
     BaseClass.addConstraints('base', Min = 3)
@@ -350,17 +350,17 @@ class DataObjectAddConstraintTest(unittest.TestCase):
 class DataObjectToStringTest(unittest.TestCase):
 
   def testToStringWithoutAttributes(self):
-    class MyDO(dataObjects.DataObject): pass
+    class MyDO(DataObject): pass
     self.assertEquals('MyDO', str(MyDO()))
     
   def testToStringWithOneAttribute(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self, x):
         self.x = x
     self.assertEquals('MyDO: x=(5)', str(MyDO(5)))
     
   def testToStringWithVariousAttributes(self):
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -368,10 +368,10 @@ class DataObjectToStringTest(unittest.TestCase):
     self.assertEquals('MyDO: x=(5), y=(6), z=(7)', str(MyDO(5, 6, 7)))
     
   def testToStringWithInnerDO(self):
-    class MyInnerDO(dataObjects.DataObject):
+    class MyInnerDO(DataObject):
       def __init__(self, x):
         self.x = x
-    class MyDO(dataObjects.DataObject):
+    class MyDO(DataObject):
       def __init__(self, x, inner):
         self.x = x
         self.inner = inner
@@ -380,18 +380,18 @@ class DataObjectToStringTest(unittest.TestCase):
 class ValueObjectEqualityTest(unittest.TestCase):
   
   def testEqualAndNotEqualWithoutAttributes(self):
-    class MyVO(dataObjects.ValueObject): pass
-    class MyAnotherVO(dataObjects.ValueObject): pass
+    class MyVO(ValueObject): pass
+    class MyAnotherVO(ValueObject): pass
     self.assertTrue(MyVO() == MyVO())
     self.assertFalse(MyVO() != MyVO())
     self.assertFalse(MyVO() == MyAnotherVO())
     self.assertTrue(MyVO() != MyAnotherVO())
     
   def testEqualAndNotEqualWithOneAttribute(self):
-    class MyVO(dataObjects.ValueObject):
+    class MyVO(ValueObject):
       def __init__(self, x):
         self.x = x
-    class MyAnotherVO(dataObjects.ValueObject):
+    class MyAnotherVO(ValueObject):
       def __init__(self, x):
         self.x = x
     self.assertTrue(MyVO(1) == MyVO(1))
@@ -400,7 +400,7 @@ class ValueObjectEqualityTest(unittest.TestCase):
     self.assertTrue(MyVO(1) != MyAnotherVO(2))
     
   def testEqualAndNotEqualWithALotOfAttributes(self):
-    class MyVO(dataObjects.ValueObject):
+    class MyVO(ValueObject):
       a = 3
       def __init__(self, x, y, z):
         self.x = x
