@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='python-dataobjects',
-      version='0.3',
+      version='0.1',
       package_dir = {'': 'dataobjects'},
       packages=['domain'],
       url='http://code.google.com/p/python-dataobjects',
