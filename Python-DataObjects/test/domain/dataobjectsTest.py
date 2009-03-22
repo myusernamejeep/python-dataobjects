@@ -9,7 +9,7 @@ TODO entity list?
 import unittest
 import datetime
 from domain.validator import *
-from domain.dataObjects import *
+from domain.dataobjects import *
 
 class DataObjectTest(unittest.TestCase):
   
