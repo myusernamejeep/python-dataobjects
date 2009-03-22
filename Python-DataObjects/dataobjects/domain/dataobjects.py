@@ -69,7 +69,7 @@ class Entity(DataObject):
    
   Example of usage:
   
-  import dataobjects
+  from domain import dataobjects
   
   class MyEntity(dataobjects.Entity):
     
@@ -109,7 +109,7 @@ class ValueObject(DataObject):
   
   Beyond the functionality of Entity, ValueObjects also has:
   
-  import dataobjects
+  from domain import dataobjects
   
   class MyValueObject(dataobjects.ValueObject):
 
@@ -140,7 +140,7 @@ class OrderedValueObject(ValueObject):
   '''
   Beyond the functionality of Entity and ValueObject, OrderedValueObjects also has:
   
-  import dataobjects
+  from domain import dataobjects
   
   class MyValueObject(dataobjects.ValueObject):
 
