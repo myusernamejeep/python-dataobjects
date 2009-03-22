@@ -69,9 +69,9 @@ class Entity(DataObject):
    
   Example of usage:
   
-  import dataObject
+  import dataobjects
   
-  class MyEntity(dataObject.Entity):
+  class MyEntity(dataobjects.Entity):
     
     def __init__(self):
       self.someint = 1
@@ -109,7 +109,9 @@ class ValueObject(DataObject):
   
   Beyond the functionality of Entity, ValueObjects also has:
   
-  class MyValueObject(dataObject.ValueObject):
+  import dataobjects
+  
+  class MyValueObject(dataobjects.ValueObject):
 
     def __init__(self, somevariable, anothervariable):
       self.somevariable = somevariable
@@ -138,7 +140,9 @@ class OrderedValueObject(ValueObject):
   '''
   Beyond the functionality of Entity and ValueObject, OrderedValueObjects also has:
   
-  class MyValueObject(dataObject.ValueObject):
+  import dataobjects
+  
+  class MyValueObject(dataobjects.ValueObject):
 
     def __init__(self, vara, varb, varc):
       self.vara = vara
