@@ -166,6 +166,9 @@ class OrderedValueObject(ValueObject):
   print(MyOrderedValueObject(30, 4, 30) > MyOrderedValueObject(40, 3, 40)) # True: varb > varb
   print(MyOrderedValueObject(4, 4, 30) > MyOrderedValueObject(3, 4, 40)) # True: varb = varb and vara > vara
   print(MyOrderedValueObject(4, 4, 30) > MyOrderedValueObject(4, 4, 40)) # False: varb = varb and vara = vara, ignoring 30 and 40
+  
+  PS1: Unorderable variables are ignored.
+  PS1: Variables thar are not in priorityOrder methods are ignores.
   '''
 
   def priorityOrder(self):
