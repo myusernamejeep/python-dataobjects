@@ -377,7 +377,7 @@ class DataObjectToStringTest(unittest.TestCase):
         self.inner = inner
     self.assertEquals('MyDO: inner=(MyInnerDO: x=(6)), x=(5)', str(MyDO(5, MyInnerDO(6))))
 
-class ValueObjectEqualityTest(unittest.TestCase):
+class ValueObjectTest(unittest.TestCase):
   
   def testEqualAndNotEqualWithoutAttributes(self):
     class MyVO(ValueObject): pass
@@ -408,6 +408,202 @@ class ValueObjectEqualityTest(unittest.TestCase):
         self.z = z
     self.assertTrue(MyVO(x=1, y=2, z=3) == MyVO(z=3, y=2, x=1))
     self.assertTrue(MyVO(1, 3, 2) != MyVO(1, 2, 3))
+    
+class OrderedValueObjectTest(unittest.TestCase):
+    
+  def testVOWithoutAttributs(self):
+    class MyVO(OrderedValueObject):
+      pass
+    self.assertFalse(MyVO() < MyVO())
+    self.assertTrue(MyVO() <= MyVO())
+    self.assertFalse(MyVO() > MyVO())
+    self.assertTrue(MyVO() >= MyVO())
+    
+  def testVOWithOneNumberAttribute(self):
+    class MyVO(OrderedValueObject):
+      def __init__(self, value):
+        self.value = value
+    self.assertTrue(MyVO(1) < MyVO(2))
+    self.assertFalse(MyVO(2) < MyVO(2))
+    self.assertFalse(MyVO(2) < MyVO(1))
+    
+    self.assertTrue(MyVO(1) <= MyVO(2))
+    self.assertTrue(MyVO(2) <= MyVO(2))
+    self.assertFalse(MyVO(2) <= MyVO(1))
+    
+    self.assertFalse(MyVO(1) > MyVO(2))
+    self.assertFalse(MyVO(2) > MyVO(2))
+    self.assertTrue(MyVO(2) > MyVO(1))
+    
+    self.assertFalse(MyVO(1) >= MyVO(2))
+    self.assertTrue(MyVO(2) >= MyVO(2))
+    self.assertTrue(MyVO(2) >= MyVO(1))
+    
+  def testVOWithOneStringAttributeMustBeTheLexicographicalOrder(self):
+    class MyVO(OrderedValueObject):
+      def __init__(self, value):
+        self.value = value
+    self.assertTrue(MyVO('aa') < MyVO('ab'))
+    self.assertFalse(MyVO('ab') < MyVO('ab'))
+    self.assertFalse(MyVO('ab') < MyVO('aa'))
+    
+    self.assertTrue(MyVO('aa') <= MyVO('ab'))
+    self.assertTrue(MyVO('ab') <= MyVO('ab'))
+    self.assertFalse(MyVO('ab') <= MyVO('aa'))
+    
+    self.assertFalse(MyVO('aa') > MyVO('ab'))
+    self.assertFalse(MyVO('ab') > MyVO('ab'))
+    self.assertTrue(MyVO('ab') > MyVO('aa'))
+    
+    self.assertFalse(MyVO('aa') >= MyVO('ab'))
+    self.assertTrue(MyVO('ab') >= MyVO('ab'))
+    self.assertTrue(MyVO('ab') >= MyVO('aa'))
+    
+  def testVOWithTwoAttributeMustBeOrderByLexicographicalOrderOfVariableNames(self):
+    class MyVO(OrderedValueObject):
+      def __init__(self, valuea, valueb):
+        self.valuea = valuea
+        self.valueb = valueb
+    self.assertTrue(MyVO(1, 'aa') < MyVO(2, 'ab'))
+    self.assertTrue(MyVO(1, 'aa') < MyVO(2, 'aa'))
+    self.assertTrue(MyVO(1, 'aa') < MyVO(1, 'ab'))
+    self.assertFalse(MyVO(2, 'aa') < MyVO(2, 'aa'))
+    self.assertFalse(MyVO(2, 'ab') < MyVO(1, 'aa'))
+    self.assertFalse(MyVO(2, 'aa') < MyVO(1, 'aa'))
+    self.assertFalse(MyVO(1, 'ab') < MyVO(1, 'aa'))
+    
+    self.assertTrue(MyVO(1, 'aa') <= MyVO(2, 'ab'))
+    self.assertTrue(MyVO(1, 'aa') <= MyVO(2, 'aa'))
+    self.assertTrue(MyVO(1, 'aa') <= MyVO(1, 'ab'))
+    self.assertTrue(MyVO(2, 'aa') <= MyVO(2, 'aa'))
+    self.assertFalse(MyVO(2, 'ab') <= MyVO(1, 'aa'))
+    self.assertFalse(MyVO(2, 'aa') <= MyVO(1, 'aa'))
+    self.assertFalse(MyVO(1, 'ab') <= MyVO(1, 'aa'))
+    
+    self.assertFalse(MyVO(1, 'aa') > MyVO(2, 'ab'))
+    self.assertFalse(MyVO(1, 'aa') > MyVO(2, 'aa'))
+    self.assertFalse(MyVO(1, 'aa') > MyVO(1, 'ab'))
+    self.assertFalse(MyVO(2, 'aa') > MyVO(2, 'aa'))
+    self.assertTrue(MyVO(2, 'ab') > MyVO(1, 'aa'))
+    self.assertTrue(MyVO(2, 'aa') > MyVO(1, 'aa'))
+    self.assertTrue(MyVO(1, 'ab') > MyVO(1, 'aa'))
+    
+    self.assertFalse(MyVO(1, 'aa') >= MyVO(2, 'ab'))
+    self.assertFalse(MyVO(1, 'aa') >= MyVO(2, 'aa'))
+    self.assertFalse(MyVO(1, 'aa') >= MyVO(1, 'ab'))
+    self.assertTrue(MyVO(2, 'aa') >= MyVO(2, 'aa'))
+    self.assertTrue(MyVO(2, 'ab') >= MyVO(1, 'aa'))
+    self.assertTrue(MyVO(2, 'aa') >= MyVO(1, 'aa'))
+    self.assertTrue(MyVO(1, 'ab') >= MyVO(1, 'aa'))
+    
+  def testVOMustBeOrderByDefinedPriorityOrder(self):
+    class MyVO(OrderedValueObject):
+      def __init__(self, valuea, valueb):
+        self.valuea = valuea
+        self.valueb = valueb
+      def priorityOrder(self):
+        return ['valueb', 'valuea']
+    self.assertTrue(MyVO(1, 'aa') < MyVO(2, 'ab'))
+    self.assertTrue(MyVO(1, 'aa') < MyVO(2, 'aa'))
+    self.assertTrue(MyVO(1, 'aa') < MyVO(1, 'ab'))
+    self.assertFalse(MyVO(2, 'aa') < MyVO(2, 'aa'))
+    self.assertFalse(MyVO(2, 'ab') < MyVO(1, 'aa'))
+    self.assertFalse(MyVO(2, 'aa') < MyVO(1, 'aa'))
+    self.assertFalse(MyVO(1, 'ab') < MyVO(1, 'aa'))
+    self.assertFalse(MyVO(1, 'ab') < MyVO(2, 'aa'))
+    self.assertTrue(MyVO(2, 'aa') < MyVO(1, 'ab'))
+    
+    self.assertTrue(MyVO(1, 'aa') <= MyVO(2, 'ab'))
+    self.assertTrue(MyVO(1, 'aa') <= MyVO(2, 'aa'))
+    self.assertTrue(MyVO(1, 'aa') <= MyVO(1, 'ab'))
+    self.assertTrue(MyVO(2, 'aa') <= MyVO(2, 'aa'))
+    self.assertFalse(MyVO(2, 'ab') <= MyVO(1, 'aa'))
+    self.assertFalse(MyVO(2, 'aa') <= MyVO(1, 'aa'))
+    self.assertFalse(MyVO(1, 'ab') <= MyVO(1, 'aa'))
+    self.assertFalse(MyVO(1, 'ab') <= MyVO(2, 'aa'))
+    self.assertTrue(MyVO(2, 'aa') <= MyVO(1, 'ab'))
+    
+    self.assertFalse(MyVO(1, 'aa') > MyVO(2, 'ab'))
+    self.assertFalse(MyVO(1, 'aa') > MyVO(2, 'aa'))
+    self.assertFalse(MyVO(1, 'aa') > MyVO(1, 'ab'))
+    self.assertFalse(MyVO(2, 'aa') > MyVO(2, 'aa'))
+    self.assertTrue(MyVO(2, 'ab') > MyVO(1, 'aa'))
+    self.assertTrue(MyVO(2, 'aa') > MyVO(1, 'aa'))
+    self.assertTrue(MyVO(1, 'ab') > MyVO(1, 'aa'))
+    self.assertTrue(MyVO(1, 'ab') > MyVO(2, 'aa'))
+    self.assertFalse(MyVO(2, 'aa') > MyVO(1, 'ab'))
+    
+    self.assertFalse(MyVO(1, 'aa') >= MyVO(2, 'ab'))
+    self.assertFalse(MyVO(1, 'aa') >= MyVO(2, 'aa'))
+    self.assertFalse(MyVO(1, 'aa') >= MyVO(1, 'ab'))
+    self.assertTrue(MyVO(2, 'aa') >= MyVO(2, 'aa'))
+    self.assertTrue(MyVO(2, 'ab') >= MyVO(1, 'aa'))
+    self.assertTrue(MyVO(2, 'aa') >= MyVO(1, 'aa'))
+    self.assertTrue(MyVO(1, 'ab') >= MyVO(1, 'aa'))
+    self.assertTrue(MyVO(1, 'ab') >= MyVO(2, 'aa'))
+    self.assertFalse(MyVO(2, 'aa') >= MyVO(1, 'ab'))
+    
+  def testVOWithOptionalArgumentMustIgnoreThatToOrder(self):
+      class MyVO(OrderedValueObject):
+        def __init__(self, valuea, valueb):
+          self.valuea = valuea
+          self.valueb = valueb
+        def priorityOrder(self):
+          return ['valuea']
+      self.assertTrue(MyVO(1, 'aa') < MyVO(2, 'ab'))
+      self.assertTrue(MyVO(1, 'aa') < MyVO(2, 'aa'))
+      self.assertFalse(MyVO(1, 'aa') < MyVO(1, 'ab'))
+      self.assertFalse(MyVO(2, 'aa') < MyVO(2, 'aa'))
+      self.assertFalse(MyVO(2, 'ab') < MyVO(1, 'aa'))
+      self.assertFalse(MyVO(2, 'aa') < MyVO(1, 'aa'))
+      self.assertFalse(MyVO(1, 'ab') < MyVO(1, 'aa'))
+      self.assertTrue(MyVO(1, 'ab') < MyVO(2, 'aa'))
+      self.assertFalse(MyVO(2, 'aa') < MyVO(1, 'ab'))
+      
+      self.assertTrue(MyVO(1, 'aa') <= MyVO(2, 'ab'))
+      self.assertTrue(MyVO(1, 'aa') <= MyVO(2, 'aa'))
+      self.assertTrue(MyVO(1, 'aa') <= MyVO(1, 'ab'))
+      self.assertTrue(MyVO(2, 'aa') <= MyVO(2, 'aa'))
+      self.assertFalse(MyVO(2, 'ab') <= MyVO(1, 'aa'))
+      self.assertFalse(MyVO(2, 'aa') <= MyVO(1, 'aa'))
+      self.assertTrue(MyVO(1, 'ab') <= MyVO(1, 'aa'))
+      self.assertTrue(MyVO(1, 'ab') <= MyVO(2, 'aa'))
+      self.assertFalse(MyVO(2, 'aa') <= MyVO(1, 'ab'))
+      
+      self.assertFalse(MyVO(1, 'aa') > MyVO(2, 'ab'))
+      self.assertFalse(MyVO(1, 'aa') > MyVO(2, 'aa'))
+      self.assertFalse(MyVO(1, 'aa') > MyVO(1, 'ab'))
+      self.assertFalse(MyVO(2, 'aa') > MyVO(2, 'aa'))
+      self.assertTrue(MyVO(2, 'ab') > MyVO(1, 'aa'))
+      self.assertTrue(MyVO(2, 'aa') > MyVO(1, 'aa'))
+      self.assertFalse(MyVO(1, 'ab') > MyVO(1, 'aa'))
+      self.assertFalse(MyVO(1, 'ab') > MyVO(2, 'aa'))
+      self.assertTrue(MyVO(2, 'aa') > MyVO(1, 'ab'))
+      
+      self.assertFalse(MyVO(1, 'aa') >= MyVO(2, 'ab'))
+      self.assertFalse(MyVO(1, 'aa') >= MyVO(2, 'aa'))
+      self.assertTrue(MyVO(1, 'aa') >= MyVO(1, 'ab'))
+      self.assertTrue(MyVO(2, 'aa') >= MyVO(2, 'aa'))
+      self.assertTrue(MyVO(2, 'ab') >= MyVO(1, 'aa'))
+      self.assertTrue(MyVO(2, 'aa') >= MyVO(1, 'aa'))
+      self.assertTrue(MyVO(1, 'ab') >= MyVO(1, 'aa'))
+      self.assertFalse(MyVO(1, 'ab') >= MyVO(2, 'aa'))
+      self.assertTrue(MyVO(2, 'aa') >= MyVO(1, 'ab'))
+  
+  def testOrderIgnoreUnorderedAttributes(self):
+    class MyVO(OrderedValueObject):
+      def __init__(self, orderedattr, unorderedattr):
+        self.orderedattr = orderedattr
+        self.unorderedattr = unorderedattr
+    self.assertFalse(MyVO(3, {4:4}) < MyVO(2, {3:3}))
+    self.assertFalse(MyVO(3, {4:4}) <= MyVO(2, {3:3}))
+    self.assertTrue(MyVO(3, {3:3}) > MyVO(2, {4:4}))
+    self.assertTrue(MyVO(3, {3:3}) >= MyVO(2, {4:4}))
+    self.assertTrue(MyVO(2, {3:3}) >= MyVO(2, {4:4}))
+    self.assertTrue(MyVO(2, {3:3}) <= MyVO(2, {4:4}))
+    self.assertFalse(MyVO(2, {3:3}) > MyVO(2, {4:4}))
+    self.assertFalse(MyVO(2, {3:3}) < MyVO(2, {4:4}))
+    
     
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
