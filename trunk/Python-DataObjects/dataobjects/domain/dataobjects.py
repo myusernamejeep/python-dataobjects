@@ -115,6 +115,10 @@ class ValueObject(DataObject):
 
     def __init__(self, somevariable, anothervariable):
       self.somevariable = somevariable
+      self.anothervariable = anothervariable
+      
+    def equalsVariables(self):
+      return ['somevariable']
   
   MyValueObject.addConstraints('somevariable', Nullable = False, Min = 3)
   MyValueObject.addConstraints('anothervariable', Nullable = False, Max = 4)
