@@ -128,9 +128,20 @@ class ValueObject(DataObject):
   print(MyValueObject(2, 5).valid()) # False
   '''
   
+  def equalsVariables(self):
+    pass
+  
   def __eq__(self, that):
-    if isinstance(that, self.__class__):
-      return vars(self) == vars(that)
+    # FIXME: bug with cycle dependency, Example: Player has Team that has lot of Players
+    variables = self.equalsVariables()
+    if variables == None:
+      if isinstance(that, self.__class__):
+        return vars(self) == vars(that)
+    else:
+      for var in variables:
+        if vars(self)[var] != vars(that)[var]:
+          return False
+      return True
     return False
   
   def __ne__(self, that):
@@ -178,7 +189,7 @@ class OrderedValueObject(ValueObject):
   def priorityOrder(self):
     return sorted(vars(self).keys())
   
-  def __comparation__(self, that, acceptEqual):
+  def __comparation(self, that, acceptEqual):
     if isinstance(that, self.__class__):
       for var in self.priorityOrder():
         try:
@@ -192,10 +203,10 @@ class OrderedValueObject(ValueObject):
     return False
   
   def __lt__(self, that):
-    return self.__comparation__(that, False)
+    return self.__comparation(that, False)
   
   def __le__(self, that):
-    return self.__comparation__(that, True)
+    return self.__comparation(that, True)
   
   def __gt__(self, that):
     return not self.__le__(that)
