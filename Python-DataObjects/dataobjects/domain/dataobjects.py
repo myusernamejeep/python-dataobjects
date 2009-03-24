@@ -127,7 +127,8 @@ class ValueObject(DataObject):
   
   print(MyValueObject(3, 4))
   print(MyValueObject(3, 4) == MyValueObject(3, 4)) # True
-  print(MyValueObject(3, 4) == MyValueObject(3, 5)) # False
+  print(MyValueObject(3, 4) == MyValueObject(4, 4)) # False
+  print(MyValueObject(3, 4) == MyValueObject(3, 5)) # True
   print(MyValueObject(3, 4).valid()) # True
   print(MyValueObject(2, 5).valid()) # False
   '''
