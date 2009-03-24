@@ -409,6 +409,50 @@ class ValueObjectTest(unittest.TestCase):
     self.assertTrue(MyVO(x=1, y=2, z=3) == MyVO(z=3, y=2, x=1))
     self.assertTrue(MyVO(1, 3, 2) != MyVO(1, 2, 3))
     
+  def testEqualsAndNotEqualsWithExplicitVariables(self):
+    class MyVO(ValueObject):
+      a = 3
+      def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+      def equalsVariables(self):
+        return ['x', 'y']
+    self.assertTrue(MyVO(1, 2, 3) == MyVO(1, 2, 3))
+    self.assertTrue(MyVO(1, 2, 3) == MyVO(1, 2, 4))
+    self.assertTrue(MyVO(1, 2, 3) != MyVO(1, 3, 3))
+    self.assertTrue(MyVO(1, 2, 3) != MyVO(2, 2, 3))
+    
+  def testEqualsAndNotEqualsWithEmptyExplicitVariables(self):
+    class MyVO(ValueObject):
+      def __init__(self, x):
+        self.x = x
+      def equalsVariables(self):
+        return []
+    self.assertTrue(MyVO(1) == MyVO(2))
+    
+  def testEqualsAndNotEqualsWithExplicitVariablesThatDontExistRaiseAnException(self):
+    class MyVO(ValueObject):
+      def __init__(self, x):
+        self.x = x
+      def equalsVariables(self):
+        return ['y']
+    try:
+      self.assertTrue(MyVO(1, 2, 3) == MyVO(1, 2, 3))
+    except: pass
+    else: self.fail()
+    
+  def atestEqualAndNotEqualWithCycleDependency(self):
+    # FIXME bug, how? Use equalsVariables
+    class MyVO1(ValueObject):
+      def __init__(self):
+        self.vo = MyVO2()
+    class MyVO2(ValueObject):
+      def __init__(self):
+        self.vo = MyVO1()
+    self.assertEquals(MyVO1(), MyVO1())
+    self.assertEquals(MyVO2(), MyVO2())
+    
 class OrderedValueObjectTest(unittest.TestCase):
     
   def testVOWithoutAttributs(self):
