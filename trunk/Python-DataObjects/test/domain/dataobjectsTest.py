@@ -408,6 +408,13 @@ class ValueObjectTest(unittest.TestCase):
         self.z = z
     self.assertTrue(MyVO(x=1, y=2, z=3) == MyVO(z=3, y=2, x=1))
     self.assertTrue(MyVO(1, 3, 2) != MyVO(1, 2, 3))
+  
+  def testEqualAndNotEqualWithNone(self):
+    class MyVO(ValueObject):
+      def __init__(self, x):
+        self.x = x
+    self.assertFalse(MyVO(1) == None)
+    self.assertTrue(MyVO(1) != None)
     
   def testEqualsAndNotEqualsWithExplicitVariables(self):
     class MyVO(ValueObject):

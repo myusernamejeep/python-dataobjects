@@ -137,15 +137,15 @@ class ValueObject(DataObject):
   
   def __eq__(self, that):
     # FIXME: bug with cycle dependency, Example: Player has Team that has lot of Players
-    variables = self.equalsVariables()
-    if variables == None:
-      if isinstance(that, self.__class__):
-        return vars(self) == vars(that)
-    else:
-      for var in variables:
-        if vars(self)[var] != vars(that)[var]:
-          return False
-      return True
+    if isinstance(that, self.__class__):
+      variables = self.equalsVariables()
+      if variables == None:
+          return vars(self) == vars(that)
+      else:
+        for var in variables:
+          if vars(self)[var] != vars(that)[var]:
+            return False
+        return True
     return False
   
   def __ne__(self, that):
