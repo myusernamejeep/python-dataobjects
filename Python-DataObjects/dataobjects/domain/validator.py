@@ -1,7 +1,7 @@
 '''
 Created on Mar 8, 2009
 
-@author: Paulo Cheque (paulocheque@agilbits.com.br)
+@author: Paulo Cheque (paulocheque@gmail.com)
 
 To register a new constraint, follow:
 

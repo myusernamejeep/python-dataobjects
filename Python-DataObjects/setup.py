@@ -9,7 +9,7 @@ setup(name='python-dataobjects',
       long_description='Library with a lot of unit test to help creation of Entities and ValueObjects in Python with easy validation, inspired by sintax of GORM of Groovy.',
       platforms='python platforms',
       author='Paulo Cheque',
-      author_email='paulocheque@agilbits.com.br',
+      author_email='paulocheque@gmail.com',
       license='MIT',
       )
 
